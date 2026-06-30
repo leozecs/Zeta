@@ -6,11 +6,6 @@ export default function Home() {
     <Shell>
       <section className="hero">
         <div className="hero-content">
-          <div className="pill">
-            <span className="pill-dot" />
-            Uma conversa. Um produto digital.
-          </div>
-
           <h1>
             <span className="typewriter">Olá, eu sou o Zeta!</span>
           </h1>
@@ -23,7 +18,7 @@ export default function Home() {
           </p>
 
           <div className="actions">
-            <Link href="/entrar" className="button">
+            <Link href="/entrar?modo=criar" className="button">
               Começar agora <span aria-hidden>→</span>
             </Link>
             <Link href="/produtos" className="button secondary">

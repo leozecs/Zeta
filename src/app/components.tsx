@@ -21,10 +21,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <nav className="nav">
             <Link href="/">Início</Link>
             <Link href="/produtos">Produtos</Link>
-            <Link href="/entrar">Entrar</Link>
+            <Link href="/entrar?modo=login">Entrar</Link>
           </nav>
 
-          <Link href="/entrar" className="button">
+          <Link href="/entrar?modo=criar" className="button">
             Começar <span aria-hidden>→</span>
           </Link>
         </div>

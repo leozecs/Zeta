@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Logo, Shell } from "../components";
 
 type EntryMode = "create" | "login";
@@ -9,13 +9,18 @@ export function EntryPage() {
   const [mode, setMode] = useState<EntryMode>("create");
   const isCreate = mode === "create";
 
+  useEffect(() => {
+    const queryMode = new URLSearchParams(window.location.search).get("modo");
+    setMode(queryMode === "login" ? "login" : "create");
+  }, []);
+
   return (
     <Shell>
       <section className="login-page">
         <div className="login-z" aria-hidden>
-          <span className="top" />
-          <span className="middle" />
-          <span className="bottom" />
+          <svg viewBox="0 0 1000 560" preserveAspectRatio="none" role="presentation">
+            <path d="M80 80 H930 L80 480 H930" />
+          </svg>
         </div>
 
         <div className="login-card">
@@ -23,7 +28,7 @@ export function EntryPage() {
             <Logo />
             <h1>Entre ou crie sua conta na Zeta</h1>
 
-            <div className="switch" data-active={isCreate ? "monthly" : "annual"}>
+            <div className="switch" data-active={isCreate ? "create" : "login"}>
               <button
                 type="button"
                 aria-pressed={isCreate}

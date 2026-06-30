@@ -2,7 +2,6 @@
   --bg: #000000;
   --fg: #ffffff;
   --muted: rgb(255 255 255 / 0.58);
-  --soft: rgb(255 255 255 / 0.08);
   --line: rgb(255 255 255 / 0.12);
 }
 
@@ -16,10 +15,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 body {
@@ -41,7 +37,7 @@ input {
   min-height: 100dvh;
   overflow: hidden;
   background:
-    radial-gradient(circle at 70% 10%, rgb(255 255 255 / 0.12), transparent 26rem),
+    radial-gradient(circle at 70% 10%, rgb(255 255 255 / 0.11), transparent 26rem),
     radial-gradient(circle at 15% 88%, rgb(255 255 255 / 0.06), transparent 24rem),
     #000;
   color: #fff;
@@ -54,8 +50,8 @@ input {
   pointer-events: none;
   content: "";
   background-image:
-    linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+    linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: radial-gradient(circle at 50% 25%, black, transparent 72%);
 }
@@ -65,7 +61,7 @@ input {
   top: 0;
   z-index: 20;
   border-bottom: 1px solid var(--line);
-  background: rgb(0 0 0 / 0.8);
+  background: rgb(0 0 0 / 0.82);
   backdrop-filter: blur(22px);
 }
 
@@ -96,7 +92,7 @@ input {
   gap: 1.8rem;
   color: rgb(255 255 255 / 0.58);
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .nav a:hover {
@@ -115,7 +111,7 @@ input {
   color: #000;
   cursor: pointer;
   font-size: 0.94rem;
-  font-weight: 800;
+  font-weight: 650;
   padding: 0 1.25rem;
   transition:
     transform 160ms ease,
@@ -152,36 +148,15 @@ input {
 }
 
 .hero-content {
-  max-width: 62rem;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 0.06);
-  color: rgb(255 255 255 / 0.66);
-  font-size: 0.9rem;
-  font-weight: 700;
-  padding: 0.45rem 0.8rem;
-  animation: soft-reveal 680ms ease both;
-}
-
-.pill-dot {
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 999px;
-  background: #fff;
+  max-width: 64rem;
 }
 
 .hero h1 {
-  max-width: 62rem;
-  margin: 2rem 0 0;
+  max-width: 64rem;
+  margin: 0;
   color: #fff;
-  font-size: clamp(3.4rem, 9vw, 8.5rem);
-  font-weight: 800;
+  font-size: clamp(3.35rem, 8vw, 8.1rem);
+  font-weight: 620;
   letter-spacing: -0.085em;
   line-height: 0.88;
 }
@@ -193,7 +168,7 @@ input {
   overflow: hidden;
   white-space: nowrap;
   animation:
-    typing 2.7s steps(21, end) 0.35s forwards,
+    typing 2.7s steps(19, end) 0.35s forwards,
     caret 0.9s step-end 0.35s 4;
   border-right: 0.06em solid #fff;
 }
@@ -210,7 +185,7 @@ input {
 .lead {
   max-width: 42rem;
   margin: 2.2rem 0 0;
-  color: rgb(255 255 255 / 0.58);
+  color: var(--muted);
   font-size: 1.08rem;
   line-height: 1.7;
   opacity: 0;
@@ -245,7 +220,7 @@ input {
   max-width: 50rem;
   margin: 0;
   font-size: clamp(3rem, 7vw, 6rem);
-  font-weight: 800;
+  font-weight: 620;
   letter-spacing: -0.075em;
   line-height: 0.94;
 }
@@ -256,6 +231,18 @@ input {
   color: var(--muted);
   font-size: 1.08rem;
   line-height: 1.7;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.06);
+  color: rgb(255 255 255 / 0.66);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.45rem 0.8rem;
 }
 
 .pricing-controls {
@@ -293,7 +280,8 @@ input {
   transition: transform 260ms ease;
 }
 
-.switch[data-active="annual"]::before {
+.switch[data-active="annual"]::before,
+.switch[data-active="login"]::before {
   transform: translateX(100%);
 }
 
@@ -306,7 +294,7 @@ input {
   background: transparent;
   color: rgb(255 255 255 / 0.58);
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 650;
   padding: 0 1.4rem;
 }
 
@@ -356,6 +344,7 @@ input {
 .card h2 {
   margin: 0;
   font-size: 2rem;
+  font-weight: 620;
   letter-spacing: -0.055em;
 }
 
@@ -370,6 +359,7 @@ input {
 
 .price strong {
   font-size: 3.1rem;
+  font-weight: 620;
   letter-spacing: -0.075em;
 }
 
@@ -419,32 +409,18 @@ input {
   pointer-events: none;
 }
 
-.login-z span {
-  position: absolute;
-  display: block;
-  background: #fff;
-}
-
-.login-z .top {
-  top: 0;
-  left: 0;
+.login-z svg {
   width: 100%;
-  height: 22vh;
+  height: 100%;
 }
 
-.login-z .middle {
-  top: 50%;
-  left: 50%;
-  width: max(34vw, 28rem);
-  height: 170vh;
-  transform: translate(-50%, -50%) rotate(38deg);
-}
-
-.login-z .bottom {
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 22vh;
+.login-z path {
+  fill: none;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 34;
+  filter: drop-shadow(0 0 0.4rem rgb(255 255 255 / 0.22));
 }
 
 .login-card {
@@ -476,6 +452,7 @@ input {
   margin: 1.8rem auto 0;
   text-align: center;
   font-size: 1.9rem;
+  font-weight: 620;
   letter-spacing: -0.055em;
   line-height: 1.12;
 }
@@ -494,7 +471,7 @@ input {
 .field span {
   color: rgb(255 255 255 / 0.64);
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .field input {
@@ -545,17 +522,15 @@ input {
     display: none;
   }
 
-  .header-inner {
-    width: min(100% - 1rem, 76rem);
-  }
-
+  .header-inner,
   .hero,
   .page {
     width: min(100% - 1rem, 76rem);
   }
 
   .hero h1 {
-    font-size: clamp(3rem, 15vw, 5rem);
+    font-size: clamp(2.85rem, 13vw, 5rem);
+    letter-spacing: -0.08em;
   }
 
   .actions,
@@ -573,14 +548,8 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .login-z .top,
-  .login-z .bottom {
-    height: 18vh;
-  }
-
-  .login-z .middle {
-    width: 52vw;
-    min-width: 17rem;
+  .login-z path {
+    stroke-width: 42;
   }
 }
 

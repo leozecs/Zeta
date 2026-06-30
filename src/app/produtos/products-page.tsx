@@ -94,7 +94,7 @@ export function ProductsPage() {
                   ))}
                 </ul>
 
-                <Link href="/entrar" className="button">
+                <Link href={`/entrar?modo=criar&plano=${encodeURIComponent(plan.name)}`} className="button">
                   Começar com {plan.name} <span aria-hidden>→</span>
                 </Link>
               </article>
