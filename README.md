@@ -156,6 +156,10 @@ npm run dev
 
 Abra [http://localhost:3000](http://localhost:3000).
 
+## Deploy
+
+O projeto está conectado à Vercel pelo GitHub. Todo push na branch `main` deve gerar um novo deploy automático.
+
 ## Scripts
 
 ```bash
