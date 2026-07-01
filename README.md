@@ -144,8 +144,28 @@ Entregas:
 
 - `/`: apresentação do Zeta.
 - `/produtos`: produtos, mensal/anual e pacote completo.
+- `/criar`: briefing guiado que continua o fluxo iniciado em produtos.
+- `/pagamento`: checkout preparado para gerar cobrança Pix pelo Asaas.
 - `/entrar?modo=criar`: abre a tela no formulário de criação.
 - `/entrar?modo=login`: abre a tela no formulário de login.
+
+## Integração Asaas
+
+A integração foi preparada para rodar server-side em `/api/asaas/checkout`.
+
+Variáveis necessárias:
+
+```bash
+ASAAS_ENVIRONMENT=sandbox
+ASAAS_ACCESS_TOKEN=
+```
+
+Notas:
+
+- Teste primeiro em Sandbox.
+- A API do Asaas usa o header `access_token`, não `Authorization: Bearer`.
+- A rota cria cliente, gera cobrança Pix e busca QR Code dinâmico.
+- Sem `ASAAS_ACCESS_TOKEN`, a tela informa que a configuração ainda está pendente.
 
 ## Desenvolvimento local
 

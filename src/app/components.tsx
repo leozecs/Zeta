@@ -33,7 +33,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <nav className="nav">
             <Link href="/">Início</Link>
             <Link href="/produtos">Produtos</Link>
-            <Link href="/criar">Criar</Link>
             <Link href="/entrar?modo=login">Entrar</Link>
           </nav>
 

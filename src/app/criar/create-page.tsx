@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { products, Shell } from "../components";
 
 const questions = [
@@ -10,6 +11,7 @@ const questions = [
 ];
 
 export function CreatePage() {
+  const router = useRouter();
   const [selectedProduct, setSelectedProduct] = useState(products[0].name);
   const [answers, setAnswers] = useState<string[]>(Array(questions.length).fill(""));
 
@@ -33,6 +35,15 @@ export function CreatePage() {
     setAnswers((current) =>
       current.map((answer, answerIndex) => (answerIndex === index ? value : answer)),
     );
+  }
+
+  function goToPayment() {
+    const searchParams = new URLSearchParams({
+      produto: product.name,
+      briefing: answers.map((answer) => answer.trim()).join("\n\n"),
+    });
+
+    router.push(`/pagamento?${searchParams.toString()}`);
   }
 
   return (
@@ -101,7 +112,7 @@ export function CreatePage() {
                 </p>
               </div>
 
-              <button type="button" className="button" disabled={!isReady}>
+              <button type="button" className="button" disabled={!isReady} onClick={goToPayment}>
                 {isReady ? "Ir para pagamento" : `Responder ${questions.length - answeredCount} perguntas`}
                 <span aria-hidden>→</span>
               </button>
