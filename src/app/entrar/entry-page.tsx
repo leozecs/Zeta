@@ -17,12 +17,6 @@ export function EntryPage() {
   return (
     <Shell>
       <section className="login-page">
-        <div className="login-z" aria-hidden>
-          <svg viewBox="0 0 1000 560" preserveAspectRatio="none" role="presentation">
-            <path d="M80 80 H930 L80 480 H930" />
-          </svg>
-        </div>
-
         <div className="login-card">
           <div className="login-inner">
             <Logo />

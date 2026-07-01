@@ -18,7 +18,7 @@ export default function Home() {
           </p>
 
           <div className="actions">
-            <Link href="/entrar?modo=criar" className="button">
+            <Link href="/criar" className="button">
               Começar agora <span aria-hidden>→</span>
             </Link>
             <Link href="/produtos" className="button secondary">

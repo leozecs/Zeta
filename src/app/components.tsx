@@ -9,9 +9,21 @@ export function Logo() {
   );
 }
 
+export function ZetaBackground() {
+  return (
+    <div className="zeta-background" aria-hidden>
+      <svg viewBox="0 0 1000 560" preserveAspectRatio="none" role="presentation">
+        <path d="M80 80 H930 L80 480 H930" />
+      </svg>
+    </div>
+  );
+}
+
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="shell">
+      <ZetaBackground />
+
       <header className="header">
         <div className="header-inner">
           <Link href="/" aria-label="Zeta início">
@@ -21,10 +33,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <nav className="nav">
             <Link href="/">Início</Link>
             <Link href="/produtos">Produtos</Link>
+            <Link href="/criar">Criar</Link>
             <Link href="/entrar?modo=login">Entrar</Link>
           </nav>
 
-          <Link href="/entrar?modo=criar" className="button">
+          <Link href="/criar" className="button">
             Começar <span aria-hidden>→</span>
           </Link>
         </div>
