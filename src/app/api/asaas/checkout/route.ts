@@ -1,8 +1,8 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
+import { callAsaas } from "../../../lib/asaas";
 import { findZetaPlan } from "../../../lib/plans";
-
-const ASAAS_SANDBOX_URL = "https://api-sandbox.asaas.com/v3";
-const ASAAS_PRODUCTION_URL = "https://api.asaas.com/v3";
+import { getSupabaseAdmin } from "../../../lib/supabase-admin";
 
 type CheckoutRequest = {
   product?: string;
@@ -20,6 +20,7 @@ type AsaasPayment = {
   invoiceUrl?: string;
   value: number;
   status: string;
+  externalReference?: string;
 };
 
 type AsaasPixQrCode = {
@@ -27,12 +28,6 @@ type AsaasPixQrCode = {
   payload?: string;
   expirationDate?: string;
 };
-
-function getAsaasBaseUrl() {
-  return process.env.ASAAS_ENVIRONMENT === "production"
-    ? ASAAS_PRODUCTION_URL
-    : ASAAS_SANDBOX_URL;
-}
 
 function getDueDate() {
   const date = new Date();
@@ -58,36 +53,6 @@ function normalizeInput(input: CheckoutRequest) {
   };
 }
 
-async function callAsaas<T>(path: string, init: RequestInit) {
-  const accessToken = process.env.ASAAS_ACCESS_TOKEN;
-
-  if (!accessToken) {
-    throw new Error("ASAAS_ACCESS_TOKEN ausente");
-  }
-
-  const response = await fetch(`${getAsaasBaseUrl()}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      "User-Agent": "Zeta/0.1.0 (Next.js)",
-      access_token: accessToken,
-      ...init.headers,
-    },
-  });
-
-  const body = (await response.json().catch(() => null)) as T | { errors?: unknown[] } | null;
-
-  if (!response.ok) {
-    return {
-      error: "O Asaas recusou a solicitação.",
-      status: response.status,
-      details: body,
-    };
-  }
-
-  return { data: body as T };
-}
-
 export async function POST(request: Request) {
   const input = (await request.json().catch(() => ({}))) as CheckoutRequest;
   const normalized = normalizeInput(input);
@@ -106,7 +71,45 @@ export async function POST(request: Request) {
     );
   }
 
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return NextResponse.json(
+      {
+        error:
+          "Configure SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY para registrar e aprovar pagamentos.",
+      },
+      { status: 500 },
+    );
+  }
+
   const plan = findZetaPlan(normalized.data.product);
+  const externalReference = `zeta-${plan.slug}-${randomUUID()}`;
+
+  const orderResponse = await supabase
+    .from("zeta_checkout_orders")
+    .insert({
+      external_reference: externalReference,
+      plan_slug: plan.slug,
+      plan_name: plan.name,
+      amount: plan.value,
+      customer_name: normalized.data.customerName,
+      customer_email: normalized.data.customerEmail,
+      briefing: normalized.data.briefing,
+      status: "pending",
+      metadata: {
+        source: "zeta_checkout",
+      },
+    })
+    .select("id")
+    .single();
+
+  if (orderResponse.error) {
+    return NextResponse.json(
+      { error: "Não foi possível registrar o pedido antes do pagamento." },
+      { status: 500 },
+    );
+  }
 
   const customerResponse = await callAsaas<AsaasCustomer>("/customers", {
     method: "POST",
@@ -117,6 +120,17 @@ export async function POST(request: Request) {
   });
 
   if ("error" in customerResponse) {
+    await supabase
+      .from("zeta_checkout_orders")
+      .update({
+        status: "failed",
+        metadata: {
+          source: "zeta_checkout",
+          asaas_error: customerResponse.details,
+        },
+      })
+      .eq("id", orderResponse.data.id);
+
     return NextResponse.json(customerResponse, { status: customerResponse.status });
   }
 
@@ -128,13 +142,33 @@ export async function POST(request: Request) {
       value: plan.value,
       dueDate: getDueDate(),
       description: `${plan.name} - Zeta`,
-      externalReference: `zeta-${plan.slug}-${Date.now()}`,
+      externalReference,
     }),
   });
 
   if ("error" in paymentResponse) {
+    await supabase
+      .from("zeta_checkout_orders")
+      .update({
+        status: "failed",
+        metadata: {
+          source: "zeta_checkout",
+          asaas_error: paymentResponse.details,
+        },
+      })
+      .eq("id", orderResponse.data.id);
+
     return NextResponse.json(paymentResponse, { status: paymentResponse.status });
   }
+
+  await supabase
+    .from("zeta_checkout_orders")
+    .update({
+      asaas_payment_id: paymentResponse.data.id,
+      asaas_status: paymentResponse.data.status,
+      invoice_url: paymentResponse.data.invoiceUrl ?? null,
+    })
+    .eq("id", orderResponse.data.id);
 
   const pixResponse = await callAsaas<AsaasPixQrCode>(
     `/payments/${paymentResponse.data.id}/pixQrCode`,
@@ -147,6 +181,11 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     mode: "asaas",
+    order: {
+      id: orderResponse.data.id,
+      externalReference,
+      status: "pending",
+    },
     payment: paymentResponse.data,
     pix: pixResponse.data,
     plan,

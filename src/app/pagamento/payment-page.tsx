@@ -5,16 +5,22 @@ import Link from "next/link";
 import { findZetaPlan } from "../lib/plans";
 import { formatCurrency, Shell } from "../components";
 
-type CheckoutStatus = "idle" | "loading" | "setup_required" | "ready" | "error";
+type CheckoutStatus = "idle" | "loading" | "setup_required" | "ready" | "approved" | "error";
 
 type CheckoutResponse = {
   mode?: "setup_required" | "asaas";
   message?: string;
   error?: string;
   payment?: {
+    id: string;
     invoiceUrl?: string;
     status: string;
     value: number;
+  };
+  order?: {
+    id: string;
+    externalReference: string;
+    status: string;
   };
   pix?: {
     encodedImage?: string;
@@ -30,6 +36,7 @@ export function PaymentPage() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [status, setStatus] = useState<CheckoutStatus>("idle");
   const [checkout, setCheckout] = useState<CheckoutResponse | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
 
   const plan = useMemo(() => findZetaPlan(productName), [productName]);
 
@@ -65,7 +72,40 @@ export function PaymentPage() {
     }
 
     setStatus(data.mode === "setup_required" ? "setup_required" : "ready");
+    setStatusMessage("Pix gerado. Assim que o Asaas confirmar o pagamento, a Zeta aprova automaticamente.");
   }
+
+  useEffect(() => {
+    if (status !== "ready" || !checkout?.order?.id) {
+      return;
+    }
+
+    let isMounted = true;
+
+    async function pollPaymentStatus() {
+      const response = await fetch(`/api/asaas/status?orderId=${checkout?.order?.id}`);
+      const data = (await response.json().catch(() => null)) as
+        | { approved?: boolean; order?: { status?: string } }
+        | null;
+
+      if (!isMounted || !response.ok || !data) {
+        return;
+      }
+
+      if (data.approved || data.order?.status === "approved") {
+        setStatus("approved");
+        setStatusMessage("Pagamento aprovado. O projeto já pode seguir para liberação.");
+      }
+    }
+
+    void pollPaymentStatus();
+    const interval = window.setInterval(() => void pollPaymentStatus(), 5000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
+  }, [checkout?.order?.id, status]);
 
   async function copyPixPayload() {
     if (!checkout?.pix?.payload) {
@@ -168,6 +208,8 @@ export function PaymentPage() {
 
               {status === "ready" ? (
                 <div className="pix-box">
+                  <p>{statusMessage}</p>
+
                   {checkout?.pix?.encodedImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={`data:image/png;base64,${checkout.pix.encodedImage}`} alt="QR Code Pix" />
@@ -187,6 +229,16 @@ export function PaymentPage() {
                       Abrir fatura Asaas <span aria-hidden>→</span>
                     </Link>
                   ) : null}
+                </div>
+              ) : null}
+
+              {status === "approved" ? (
+                <div className="pix-box">
+                  <h2>Pagamento aprovado</h2>
+                  <p>{statusMessage}</p>
+                  <Link href="/entrar?modo=criar" className="button">
+                    Criar acesso <span aria-hidden>→</span>
+                  </Link>
                 </div>
               ) : null}
             </div>
